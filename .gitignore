@@ -1,0 +1,5 @@
+!tables/kaiju_gather/family_reads.tsv
+!tables/kaiju_gather/order_reads.tsv
+
+tables/*
+checks.rmd
