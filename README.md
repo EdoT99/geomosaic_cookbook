@@ -3,8 +3,8 @@
 ---
 
 ### 👤 Authorship
-* **Edoardo Taccaliti** ([email@example.com](mailto:email@example.com))
-* **Davide Corso** ([email@example.com](mailto:email@example.com))
+* **Edoardo Taccaliti** ([edoardotaccaliti@gmail.com](mailto:edoardotaccaliti@gmail.com))
+* **Davide Corso** ([davidecrs92@gmail.com](mailto:davidecrs92@gmail.com))
 
 ### 📜 Copyright & Licensing
 **Copyright (c) 2026 Edoardo Taccaliti & Davide Corso**
@@ -15,3 +15,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 > **Note:** Please cite the original Geomosaic paper if using this pipeline for published research.
 
 Corso D., et al., "Geomosaic: a flexible metagenomic pipeline combining biological and geochemical data to outline biosphere and geosphere interactions."
+
