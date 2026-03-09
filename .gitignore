@@ -3,3 +3,7 @@
 
 tables/*
 checks.rmd
+
+!geomosaic_cookbook.ipynb
+!hmm_table_template.tsv
+!parse_bigecyhmm.py
