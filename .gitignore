@@ -4,6 +4,6 @@
 tables/*
 checks.rmd
 
-tables/geomosaic_cookbook.ipynb
+notebooks/geomosaic_notebook.ipynb
 hmm_table_template.tsv
 parse_bigecyhmm.py
