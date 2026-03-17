@@ -3,6 +3,8 @@
 
 tables/*
 checks.rmd
+*.tsv
+*.r
 
 notebooks/geomosaic_cookbook.ipynb
 hmm_table_template.tsv
