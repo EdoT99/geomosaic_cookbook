@@ -6,6 +6,9 @@ checks.rmd
 *.tsv
 *.r
 
+test.py
+concat.py
+
 notebooks/geomosaic_cookbook.ipynb
 hmm_table_template.tsv
 parse_bigecyhmm.py
