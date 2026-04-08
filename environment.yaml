@@ -1,0 +1,23 @@
+name: geomosaic_analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base
+  - r-irkernel
+  - r-tidyverse
+  - r-vegan
+  - r-pheatmap
+  - r-stringr
+  - r-circlize
+  - r-igraph       # Moved from R-install to Conda
+  - r-png          # Moved from R-install to Conda
+  - r-data.table   # Moved from R-install to Conda
+  - r-fs           # Moved from R-install to Conda
+  - bioconductor-complexheatmap # Available on Bioconda!
+  - bioconductor-phyloseq       # Available on Bioconda!
+  - bioconductor-biostrings     # Available on Bioconda!
+  - bioconductor-xvector        # Available on Bioconda!
+  - jupyter_client
+  - jupyter_core
