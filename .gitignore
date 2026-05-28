@@ -1,7 +1,13 @@
 !tables/kaiju_gather/family_reads.tsv
 !tables/kaiju_gather/order_reads.tsv
 
-tables/*
+tables/*.csv
+tables/*.tsv
+tables/gm_gathering/coverm_genome
+tables/gm_gathering/
+tables/heatmaps_tpm
+tables/heatmaps_ra
+
 checks.rmd
 *.tsv
 *.r
