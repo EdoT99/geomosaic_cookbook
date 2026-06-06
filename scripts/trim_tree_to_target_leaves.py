@@ -319,84 +319,57 @@ def get_gtdb_rep_scores (genome_ids, gtdb_metadata):
     # GTDB pref score (adding genus rep +1,000,000
     #  from: https://gtdb.ecogenomic.org/methods#updating-gtdb-species-representatives
     """
-    Type species of genome                         100,000
-    Effective type strain of species according to NCBI  10,000
-    NCBI representative of species                   1,000
-    Complete genome                                    100
-    CheckM quality estimate completeness - 5*contamination
-    MAG or SAG                                            -100
-    Contig count                    -5 * (no. contigs/100)
-    Undetermined bases    -5 * (no. undetermined bases/10,000)
-    Full length 16S rRNA gene                               10
-    Many frameshifted proteins according to NCBI       -25
+    Type species of genome	                       100,000
+    Effective type strain of species according to NCBI	10,000
+    NCBI representative of species	                 1,000
+    Complete genome	                                   100
+    CheckM quality estimate	completeness - 5*contamination
+    MAG or SAG	                                          -100
+    Contig count	                -5 * (no. contigs/100)
+    Undetermined bases	  -5 * (no. undetermined bases/10,000)
+    Full length 16S rRNA gene	                            10
+    Many frameshifted proteins according to NCBI	   -25
     """
 
     for genome_id in genome_ids:
         score = 0.0
-        lookup_id = genome_id
-        
-        # 1. Verifica se l'ID ha bisogno di ri-aggiungere il prefisso GB_ o RS_
-        if lookup_id not in gtdb_metadata:
-            if f"GB_{lookup_id}" in gtdb_metadata:
-                lookup_id = f"GB_{lookup_id}"
-            elif f"RS_{lookup_id}" in gtdb_metadata:
-                lookup_id = f"RS_{lookup_id}"
-                
-        try:
-            # 2. Usa lookup_id (corretto) per estrarre la tupla dei metadati
-            (genus_rep,
-            type_species,
-            NCBI_type_strain,
-            NCBI_rep,
-            complete_genome,
-            CheckM_completeness,
-            CheckM_contamination,
-            genome_type,
-            contig_count,
-            undetermined_bases,
-            length_16S) = gtdb_metadata[lookup_id]
+
+        (genus_rep,
+         type_species,
+         NCBI_type_strain,
+         NCBI_rep,
+         complete_genome,
+         CheckM_completeness,
+         CheckM_contamination,
+         genome_type,
+         contig_count,
+         undetermined_bases,
+         length_16S) = gtdb_metadata[genome_id]
+
+        if genus_rep == 't':
+            score += 1000000
+        if type_species == 't':
+            score += 100000
+        if NCBI_type_strain == 't':
+            score += 10000
+        if NCBI_rep == 't':
+            score += 1000
+        if complete_genome == 't':
+            score += 100
+        score += CheckM_completeness - 5 * CheckM_contamination
+        if genome_type == 'M' or genome_type == 'S':
+            score -= 100
+        score -= 5 * float(undetermined_bases) / 10000.0
+        if length_16S >= 1400:
+            score += 10
+        elif length_16S > 0:
+            score += 2
+        # frameshifts not found in metadata.  maybe I missed it
             
-            # 3. Converte i valori stringa in numeri per evitare TypeError durante il calcolo matematico
-            c_completeness = float(CheckM_completeness) if CheckM_completeness else 0.0
-            c_contamination = float(CheckM_contamination) if CheckM_contamination else 0.0
-            u_bases = float(undetermined_bases) if undetermined_bases else 0.0
-            l_16s = float(length_16S) if length_16S else 0.0
-
-            if genus_rep == 't':
-                score += 1000000
-            if type_species == 't':
-                score += 100000
-            if NCBI_type_strain == 't':
-                score += 10000
-            if NCBI_rep == 't':
-                score += 1000
-            if complete_genome == 't':
-                score += 100
-                
-            score += c_completeness - 5 * c_contamination
-            if genome_type == 'M' or genome_type == 'S':
-                score -= 100
-            score -= 5 * u_bases / 10000.0
-            if l_16s >= 1400:
-                score += 10
-            elif l_16s > 0:
-                score += 2
-                
-            # Salva il punteggio calcolato usando la chiave originale (senza prefisso) attesa dall'albero
-            gtdb_rep_scores[genome_id] = score
-
-        except KeyError:
-            # Se il genoma è completamente assente dai metadati, assegna 0 in gtdb_rep_scores per evitare il KeyError successivo alla riga 441
-            gtdb_rep_scores[genome_id] = 0.0
-            print(f"  [Warning] Reference ID {genome_id} non trovato nei metadati. Assegnato score minimo (0.0).")
-            continue
-        except (ValueError, TypeError) as e:
-            # Protezione aggiuntiva nel caso in cui i dati numerici nel TSV siano malformati (es. stringhe vuote o '-' non convertibili)
-            gtdb_rep_scores[genome_id] = 0.0
-            print(f"  [Warning] Errore di formato nei dati per {genome_id}. Assegnato score minimo (0.0).")
-            continue
+        gtdb_rep_scores[genome_id] = score
 
     return gtdb_rep_scores
+
 
 # get_trunk_nodes ()
 #

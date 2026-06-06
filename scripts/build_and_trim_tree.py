@@ -219,42 +219,73 @@ def get_query_ids_from_tree(tree_path: str, id_map: dict) -> list:
     return query_names
 
 
+def load_valid_metadata_accessions(bacteria_meta_path: str, archaea_meta_path: str) -> set:
+    """
+    Legge rapidamente la prima colonna dei file dei metadati di GTDB
+    per sapere esattamente quali ID genoma sono disponibili in sicurezza.
+    """
+    valid_ids = set()
+    for path in [bacteria_meta_path, archaea_meta_path]:
+        if not path or not os.path.isfile(path):
+            continue
+        with open(path, 'r') as fh:
+            fh.readline() # Salta l'intestazione
+            for line in fh:
+                parts = line.split('\t', 1)
+                if parts:
+                    valid_ids.add(parts[0].strip())
+    return valid_ids
+
+
 def build_leaflist_map(tree_path: str,
                        id_map: dict,
                        sp_reps_by_query: dict,
-                       outdir: str) -> str:
+                       outdir: str,
+                       bacteria_meta: str,  # <-- Nuovi argomenti aggiunti
+                       archaea_meta: str) -> str:
     """
-    Build <tree_stem>.id_to_name-with_proximal_sp_reps.map and return its path.
+    Costruisce il file temporaneo .map escludendo preventivamente i genomi
+    di riferimento che mancano nei metadati per evitare KeyError a valle.
+    """
+    print("  Pre-scansione dei file metadati per prevenire crash successivi...")
+    valid_metadata_ids = load_valid_metadata_accessions(bacteria_meta, archaea_meta)
 
-    Format (TSV, 2 columns):
-      leaf_id_in_tree   display_name
-    """
-    # Determine sp reps relevant for this specific tree
+    # Determina gli sp reps rilevanti per questo specifico albero
     query_names_in_tree = get_query_ids_from_tree(tree_path, id_map)
     sp_rep_ids = []
+    
+    skipped_count = 0
     for qname in query_names_in_tree:
         for sp_rep in sp_reps_by_query.get(qname, []):
             if sp_rep not in sp_rep_ids:
-                sp_rep_ids.append(sp_rep)
+                clean_rep = sp_rep.replace("GB_", "").replace("RS_", "")
+                
+                # Controllo di sicurezza stile KBase:
+                if (sp_rep in valid_metadata_ids) or (clean_rep in valid_metadata_ids):
+                    sp_rep_ids.append(sp_rep)
+                else:
+                    skipped_count += 1
 
-    # Build output path next to the tree (or in outdir)
+    if skipped_count > 0:
+        print(f"  [Protezione] Rimossi {skipped_count} genomi di riferimento assenti nei metadati locali.")
+
+    # Genera il percorso di output
     tree_stem = re.sub(r'\.tree$', '', os.path.basename(tree_path))
     out_path = os.path.join(outdir, tree_stem + ".id_to_name-with_proximal_sp_reps.map")
 
     lines = []
-    # Your MAG entries (leaf_id → assembly name)
+        # Your MAG entries (leaf_id → assembly name)
     for leaf_id, assembly_name in id_map.items():
         lines.append(f"{leaf_id}\t{assembly_name}")
-    # Proximal GTDB reference entries
+        # Proximal GTDB reference entries
     for sp_rep_id in sorted(sp_rep_ids):
         lines.append(f"{sp_rep_id}\t{sp_rep_id}")
 
     with open(out_path, "w") as fh:
         fh.write("\n".join(lines) + "\n")
 
-    print(f"  -> Wrote leaflist map ({len(lines)} entries): {out_path}")
+    print(f"  -> Creato file leaflist map ({len(lines)} righe): {out_path}")
     return out_path
-
 
 # ---------------------------------------------------------------------------
 # Step 2 — Run trim_tree_to_target_leaves.py
@@ -349,7 +380,7 @@ def main():
         print(f"\n--- Tree: {tree_path} ---")
 
         print("\n  Step 1b: Building leaflist map ...")
-        leaflist_map = build_leaflist_map(tree_path, id_map, sp_reps_by_query, args.outdir)
+        leaflist_map = build_leaflist_map(tree_path, id_map, sp_reps_by_query, args.outdir, args.bacteria_meta, args.archaea_meta)
 
         print("\n  Step 2: Running trim_tree_to_target_leaves.py ...")
         out_files = trim_tree(
