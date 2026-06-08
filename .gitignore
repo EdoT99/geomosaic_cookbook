@@ -3,8 +3,8 @@
 
 tables/*.csv
 tables/*.tsv
-tables/gm_gathering/coverm_genome
-tables/gm_gathering/
+!tables/gm_gathering/coverm_genome
+!tables/gm_gathering/
 tables/heatmaps_tpm
 tables/heatmaps_ra
 
