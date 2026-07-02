@@ -15,9 +15,12 @@ dependencies:
   - r-png          # Moved from R-install to Conda
   - r-data.table   # Moved from R-install to Conda
   - r-fs           # Moved from R-install to Conda
+  - r-ggrepel
+  - r-svglite
   - bioconductor-complexheatmap # Available on Bioconda!
   - bioconductor-phyloseq       # Available on Bioconda!
   - bioconductor-biostrings     # Available on Bioconda!
   - bioconductor-xvector        # Available on Bioconda!
+  - bioconductor-microbiome
   - jupyter_client
   - jupyter_core
